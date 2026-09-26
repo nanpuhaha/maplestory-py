@@ -590,7 +590,7 @@ class TestRetrieveApiResult:
         api_result = APIResultList.model_validate(result)
         assert isinstance(api_result, APIResultList)
 
-    def test_retrieve_api_result_with_changed_page_props_key(self, mocker):
+    def test_retrieve_api_result_with_category_result_key(self, mocker):
         sample_result = [
             {
                 "id": 22,
@@ -613,7 +613,7 @@ class TestRetrieveApiResult:
         script_data = {
             "props": {
                 "pageProps": {
-                    "apiInformation": sample_result,
+                    "categoryResult": sample_result,
                 }
             }
         }

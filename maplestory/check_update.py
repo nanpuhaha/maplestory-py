@@ -140,6 +140,8 @@ def retrieve_api_result() -> dict:
 
         if "apiResult" in page_props:
             return page_props["apiResult"]
+        if "categoryResult" in page_props:
+            return page_props["categoryResult"]
 
         for value in page_props.values():
             if (
