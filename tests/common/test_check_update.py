@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -588,6 +589,54 @@ class TestRetrieveApiResult:
 
         api_result = APIResultList.model_validate(result)
         assert isinstance(api_result, APIResultList)
+
+    def test_retrieve_api_result_with_changed_page_props_key(self, mocker):
+        sample_result = [
+            {
+                "id": 22,
+                "gameId": "2332",
+                "categoryName": "캐릭터 정보 조회",
+                "filePath": "/22_script20240611002137.yaml",
+                "fileName": "22_script20240611002137.yaml",
+                "fileUrl": "https://openapi.nexon.com/static/api/22_script20240611002137.yaml",
+                "isVisible": True,
+                "ordering": 1,
+                "createEmpNo": "31532",
+                "createEmpName": "%EA%B9%80%EC%A7%80%EC%95%88",
+                "updateEmpNo": "22322",
+                "updateEmpName": "윤진영2",
+                "createDate": "2023-12-12T10:39:22",
+                "updateDate": "2024-06-19T23:03:28",
+            }
+        ]
+
+        script_data = {
+            "props": {
+                "pageProps": {
+                    "apiInformation": sample_result,
+                }
+            }
+        }
+
+        class MockResponse:
+            def __init__(self, text):
+                self.text = text
+
+            def raise_for_status(self):
+                return None
+
+        def mock_get(url, *args, **kwargs):
+            return MockResponse(
+                f'<html><body><script id="__NEXT_DATA__">{json.dumps(script_data, ensure_ascii=False)}</script></body></html>'
+            )
+
+        patcher = mocker.patch("httpx.get", new=mock_get)
+
+        result = retrieve_api_result()
+
+        assert result == sample_result
+
+        mocker.stop(patcher)
 
     # The function handles HTTP errors and raises an exception.
     def test_retrieve_api_result_http_error(self, mocker):

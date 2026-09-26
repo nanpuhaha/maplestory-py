@@ -136,7 +136,21 @@ def retrieve_api_result() -> dict:
         soup = BeautifulSoup(response.text, "lxml")
         script = soup.select_one("#__NEXT_DATA__")
         script_data = json.loads(script.string)
-        return script_data["props"]["pageProps"]["apiResult"]
+        page_props = script_data["props"]["pageProps"]
+
+        if "apiResult" in page_props:
+            return page_props["apiResult"]
+
+        for value in page_props.values():
+            if (
+                isinstance(value, list)
+                and value
+                and isinstance(value[0], dict)
+                and {"id", "fileName", "fileUrl", "updateDate"}.issubset(value[0].keys())
+            ):
+                return value
+
+        raise KeyError("apiResult")
     except Exception as e:
         raise Exception(f"Failed to fetch API result: {str(e)}")
 
